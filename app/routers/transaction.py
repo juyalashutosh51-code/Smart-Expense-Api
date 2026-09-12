@@ -4,6 +4,7 @@ from sqlalchemy.orm import Session
 from app.database import get_db
 from app.models.transaction import Transaction
 from app.schemas.transaction import TransactionCreate, TransactionUpdate
+from app.services.categorizer import categorize_transaction
 
 router = APIRouter(
     prefix="/transactions",
@@ -15,10 +16,15 @@ def create_transaction(
     transaction: TransactionCreate,
     db: Session = Depends(get_db)
 ):
+    category =transaction.category
+
+    if category is None:
+        category = categorize_transaction(transaction.description)
+
     new_transaction = Transaction(
         description=transaction.description,
         amount=transaction.amount,
-        category=transaction.category,
+        category=category,
         date=transaction.date
     )
 
