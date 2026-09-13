@@ -1,10 +1,13 @@
-from fastapi import APIRouter,Depends,HTTPException
+from fastapi import APIRouter,Depends,HTTPException,UploadFile,File
 from sqlalchemy.orm import Session
+import pandas as pd
+from io import BytesIO
 
 from app.database import get_db
 from app.models.transaction import Transaction
 from app.schemas.transaction import TransactionCreate, TransactionUpdate
 from app.services.categorizer import categorize_transaction
+
 
 router = APIRouter(
     prefix="/transactions",
@@ -103,4 +106,77 @@ def delete_transaction(
 
     return{
         "message":"Transaction deleted successfully"
+    }
+
+@router.post("/import-csv")
+async def import_csv(
+    file: UploadFile = File(...),
+    db: Session = Depends(get_db)
+):
+    contents = await file.read()
+
+    df = pd.read_csv(BytesIO(contents))
+
+    required_columns = {"date","description","amount"}
+
+    if not required_columns.issubset(df.columns):
+        raise HTTPException(
+            status_code=400,
+            detail="CSV must contain date, description, and amount columns"
+        )
+
+    ## Checking for empty Descriptions
+    if df["description"].isna().any():
+        raise HTTPException(
+            status_code=400,
+            detail="Description cannot be empty"
+        )
+
+    ## Converting the Daters
+    df["date"]= pd.to_datetime(
+        df["date"],
+        errors="coerce"
+    )
+
+    if df["date"].isna().any():
+        raise HTTPException(
+            status_code=400,
+            detail="CSV contains invalid dates"
+        )
+
+    ## Convert Amounts
+    df["amount"]=pd.to_numeric(
+        df["amount"],
+        errors="coerce"
+    )
+
+    if df["amount"].isna().any():
+        raise HTTPException(
+            status_code=400,
+            detail="CSV contains invalid amounts"
+        )
+
+    transactions = []
+
+    for _, row in df.iterrows():
+
+        category = categorize_transaction(
+            row["description"]
+        )
+
+        transaction = Transaction(
+            description=row["description"],
+            amount=row["amount"],
+            category=category,
+            date=row["date"].date()
+        )
+
+        transactions.append(transaction)
+
+    db.add_all(transactions)
+    db.commit()
+
+    return{
+        "message": "CSV imported successfully",
+        "rows_imported": len(transactions)
     }
