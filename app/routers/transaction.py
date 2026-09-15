@@ -28,7 +28,8 @@ def create_transaction(
         description=transaction.description,
         amount=transaction.amount,
         category=category,
-        date=transaction.date
+        date=transaction.date,
+        transaction_type=transaction.transaction_type
     )
 
     db.add(new_transaction)
@@ -79,6 +80,7 @@ def  update_transaction(
     transaction.amount=transaction_data.amount
     transaction.category=transaction_data.category
     transaction.date=transaction_data.date
+    transaction.transaction_type=transaction_data.transaction_type
 
     db.commit()
     db.refresh(transaction)
@@ -117,7 +119,7 @@ async def import_csv(
 
     df = pd.read_csv(BytesIO(contents))
 
-    required_columns = {"date","description","amount"}
+    required_columns = {"date","description","amount","transaction_type"}
 
     if not required_columns.issubset(df.columns):
         raise HTTPException(
@@ -156,6 +158,14 @@ async def import_csv(
             detail="CSV contains invalid amounts"
         )
 
+    valid_types = {"income","expense"}
+
+    if not df["transaction_type"].isin(valid_types).all():
+        raise HTTPException(
+            status_code=400,
+            detail="transaction_type must be income or expense"
+        )
+
     transactions = []
 
     for _, row in df.iterrows():
@@ -168,7 +178,8 @@ async def import_csv(
             description=row["description"],
             amount=row["amount"],
             category=category,
-            date=row["date"].date()
+            date=row["date"].date(),
+            transaction_type=row["transaction_type"]
         )
 
         transactions.append(transaction)

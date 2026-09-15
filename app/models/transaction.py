@@ -11,3 +11,4 @@ class Transaction(Base):
     amount = Column(Numeric(10,2),nullable=False)
     category = Column(String(100),nullable=True)
     date = Column(Date,nullable=False)
+    transaction_type = Column(String(20),nullable=False,default="expense")
