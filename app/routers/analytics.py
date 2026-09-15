@@ -32,23 +32,36 @@ def monthly_summary(db: Session = Depends(get_db)):
     results = db.query(
         func.year(Transaction.date),
         func.month(Transaction.date),
+        Transaction.transaction_type,
         func.sum(Transaction.amount)
     ).group_by(
         func.year(Transaction.date),
-        func.month(Transaction.date)
+        func.month(Transaction.date),
+        Transaction.transaction_type
     ).order_by(
         func.year(Transaction.date),
         func.month(Transaction.date)
     ).all()
 
-    return[
-        {
-            "year": year,
-            "month": month,
-            "total": float(total or 0)
-        }
-        for year, month, total in results
-    ]
+    monthly_data = {}
+
+    for year,month,transaction_type,total in results:
+
+        key = (year,month)
+
+        if key not in monthly_data:
+            monthly_data[key]={
+                "year": year,
+                "month": month,
+                "income": 0,
+                "expense": 0
+            }
+        monthly_data[key][transaction_type] = float(total or 0)
+
+    for data in monthly_data.values():
+        data["balance"] = data["income"] - data["expense"]
+
+    return list (monthly_data.values())
 
 @router.get("/income-expense")
 def income_expense_summary(db: Session = Depends(get_db)):
