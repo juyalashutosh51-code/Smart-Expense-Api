@@ -49,3 +49,29 @@ def monthly_summary(db: Session = Depends(get_db)):
         }
         for year, month, total in results
     ]
+
+@router.get("/income-expense")
+def income_expense_summary(db: Session = Depends(get_db)):
+
+    total_income=db.query(
+        func.sum(Transaction.amount)
+    ).filter(
+        Transaction.transaction_type == "income"
+    ).scalar()
+
+    total_expense=db.query(
+        func.sum(Transaction.amount)
+    ).filter(
+        Transaction.transaction_type == "expense"
+    ).scalar()
+
+    total_income = float(total_income or 0)
+    total_expense = float(total_expense or 0)
+
+    balance = total_income - total_expense
+
+    return{
+        "total_income": total_income,
+        "total_expense": total_expense,
+        "balance": balance
+    }
