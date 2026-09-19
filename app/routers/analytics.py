@@ -4,6 +4,7 @@ from sqlalchemy.orm import Session
 
 from app.database import get_db
 from app.models.transaction import Transaction
+from app.services.anomaly_detector import detect_anomalies
 
 router = APIRouter(
     prefix="/analytics",
@@ -87,4 +88,18 @@ def income_expense_summary(db: Session = Depends(get_db)):
         "total_income": total_income,
         "total_expense": total_expense,
         "balance": balance
+    }
+
+@router.get("/anomalies")
+def expense_anomalies(db:Session = Depends(get_db)):
+
+    transactions = db.query(Transaction).filter(
+        Transaction.transaction_type == "expense"
+    ).all()
+
+    anomalies = detect_anomalies(transactions)
+
+    return{
+        "total_expenses_analyzed": len(transactions),
+        "anomalies": anomalies
     }
