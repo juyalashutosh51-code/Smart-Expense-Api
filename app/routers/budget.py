@@ -81,5 +81,58 @@ def budget_summary(db: Session = Depends(get_db)):
             "usage_percentage": round(usage_percentage,2),
             "status": status
         })
+@router.put("/{budget_id}")
+def update_budget(
+    budget_id: int,
+    budget: BudgetCreate,
+    db: Session = Depends(get_db)
+):
+    existing_budget = db.query(Budget).filter(
+        Budget.id == budget_id
+    ).first()
 
-    return summary
+    if existing_budget is None:
+        raise HTTPException(
+            status_code=404,
+            detail="Budget not found"
+        )
+
+    existing_budget.category = budget.category
+    existing_budget.amount = budget.amount
+    existing_budget.month = budget.month
+    existing_budget.year = budget.year
+
+    try:
+        db.commit()
+    except IntegrityError:
+        db.rollback()
+        raise HTTPException(
+            status_code=409,
+            detail= "A budget with these details could not be saved. Check whether a budget already exists for this category, month, and year."
+        )
+
+    db.refresh(existing_budget)
+
+@router.delete("/{budget_id}")
+def delete_budget(
+    budget_id: int,
+    db: Session = Depends(get_db)
+):
+    budget = db.query(Budget).filter(
+        Budget.id == budget_id
+    ).first()
+
+    if budget is None:
+        raise HTTPException(
+            status_code=404,
+            detail="Budget not found"
+        )
+
+    db.delete(budget)
+    db.commit()
+
+    return {
+        "message": "Budget deleted successfully"
+    }
+        
+    return existing_budget
