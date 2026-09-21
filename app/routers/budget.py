@@ -1,6 +1,7 @@
-from fastapi import APIRouter,Depends
+from fastapi import APIRouter,Depends,HTTPException
 from sqlalchemy.orm import Session
 from sqlalchemy import func
+from sqlalchemy.exc import IntegrityError
 
 from app.database import get_db
 from app.models.budget import Budget
@@ -25,7 +26,14 @@ def create_budget(
     )
 
     db.add(new_budget)
-    db.commit()
+    try:
+        db.commit()
+    except IntegrityError:
+        db.rollback()
+        raise HTTPException(
+            status_code=409,
+            detail="A budget with these details could not be saved. Check whether a budget already exists for this category, month, and year."
+        )
     db.refresh(new_budget)
 
     return new_budget
