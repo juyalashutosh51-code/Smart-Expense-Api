@@ -128,7 +128,9 @@ async def import_csv(
         )
 
     ## Checking for empty Descriptions
-    if df["description"].isna().any():
+    df["description"] = df["description"].astype("string").str.strip()
+
+    if df["description"].isna().any() or df["description"].eq("").any():
         raise HTTPException(
             status_code=400,
             detail="Description cannot be empty"
@@ -157,7 +159,18 @@ async def import_csv(
             status_code=400,
             detail="CSV contains invalid amounts"
         )
+    if (df["amount"]<=0).any():
+        raise HTTPException(
+            status_code=400,
+            detail="Amounts must be greater than 0"
+        )
 
+    df["transaction_type"] = (
+        df["transaction_type"]
+        .astype("string")
+        .str.strip()
+        .str.lower()
+    )
     valid_types = {"income","expense"}
 
     if not df["transaction_type"].isin(valid_types).all():
