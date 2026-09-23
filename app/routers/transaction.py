@@ -2,6 +2,8 @@ from fastapi import APIRouter,Depends,HTTPException,UploadFile,File
 from sqlalchemy.orm import Session
 import pandas as pd
 from io import BytesIO
+from datetime import date
+from typing import Literal
 
 from app.database import get_db
 from app.models.transaction import Transaction
@@ -19,17 +21,17 @@ def create_transaction(
     transaction: TransactionCreate,
     db: Session = Depends(get_db)
 ):
-    category =transaction.category
+    category = transaction.category
 
     if category is None:
         category = categorize_transaction(transaction.description)
 
     new_transaction = Transaction(
-        description=transaction.description,
-        amount=transaction.amount,
-        category=category,
-        date=transaction.date,
-        transaction_type=transaction.transaction_type
+        description = transaction.description,
+        amount = transaction.amount,
+        category = category,
+        date = transaction.date,
+        transaction_type=transaction.transaction_type   
     )
 
     db.add(new_transaction)
@@ -38,9 +40,40 @@ def create_transaction(
 
     return new_transaction
 
+
 @router.get("/")
-def get_transactions(db: Session= Depends(get_db)):
-    transactions = db.query(Transaction).all()
+def get_transactions(
+    category: str | None = None,
+    transaction_type: Literal["income","expense"] | None = None,
+    start_date: date | None = None,
+    end_date: date | None = None,
+    db: Session = Depends(get_db)
+):
+    query = db.query(Transaction)
+
+    if category is not None:
+        query = query.filter(
+            Transaction.category == category
+        )
+    if transaction_type is not None:
+            query = query.filter(
+                Transaction.transaction_type == transaction_type
+        )
+    if start_date is not None:
+            query = query.filter(
+                Transaction.date >= start_date
+        )
+    if end_date is not None:
+            query = query.filter(
+                Transaction.date <= end_date
+        )
+    if start_date is not None and end_date is not None:
+         if start_date>end_date:
+              raise HTTPException(
+                   status_code=400,
+                   detail="start_date cannot be after end_date"
+              )
+    transactions = query.all()
 
     return transactions
 
