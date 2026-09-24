@@ -1,4 +1,4 @@
-from fastapi import APIRouter,Depends,HTTPException,UploadFile,File
+from fastapi import APIRouter,Depends,HTTPException,UploadFile,File,Query
 from sqlalchemy.orm import Session
 import pandas as pd
 from io import BytesIO
@@ -47,7 +47,10 @@ def get_transactions(
     transaction_type: Literal["income","expense"] | None = None,
     start_date: date | None = None,
     end_date: date | None = None,
+    limit: int = Query(default=20, ge=1,le=100),
+    offset: int = Query(default=0, ge=0),
     db: Session = Depends(get_db)
+    
 ):
     query = db.query(Transaction)
 
@@ -73,7 +76,10 @@ def get_transactions(
                    status_code=400,
                    detail="start_date cannot be after end_date"
               )
-    transactions = query.all()
+    transactions = query.order_by(
+         Transaction.date.desc(),
+         Transaction.id.desc()
+    ).offset(offset).limit(limit).all()
 
     return transactions
 
