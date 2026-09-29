@@ -62,72 +62,74 @@ Smart-Expense-Api/
 │   └── main.py
 │
 ├── .gitignore
+├── README.md
 └── requirements.txt
+```
 
-RUNNING THE PROJECT
+## Running the Project
 
-1. Clone the repository
+### 1. Clone the repository
 
+```bash
 git clone https://github.com/juyalashutosh51-code/Smart-Expense-Api.git
-
 cd Smart-Expense-Api
+```
 
+### 2. Create a virtual environment
 
-2. Create a virtual environment
-
+```bash
 python -m venv venv
+```
 
+### 3. Activate the virtual environment on Windows
 
-3. Activate the virtual environment on Windows
-
+```bash
 venv\Scripts\activate
+```
 
+### 4. Install dependencies
 
-4. Install dependencies
-
+```bash
 pip install -r requirements.txt
+```
 
-
-5. Configure the database
+### 5. Configure the database
 
 Configure the application with your local Microsoft SQL Server database credentials using environment variables.
 
-Do not commit .env files or database credentials to GitHub.
+Do not commit `.env` files or database credentials to GitHub.
 
+### 6. Start the API
 
-6. Start the API
-
+```bash
 uvicorn app.main:app --reload
-
+```
 
 The API will be available at:
 
+```text
 http://127.0.0.1:8000
+```
 
-
-API DOCUMENTATION
+## API Documentation
 
 FastAPI provides interactive API documentation through Swagger/OpenAPI.
 
-After starting the application, the documentation can be accessed at:
+After starting the application, open:
 
+```text
 http://127.0.0.1:8000/docs
+```
 
-
-```markdown
 ## API Overview
 
 The API provides endpoints for transaction management, CSV import, financial analytics, budget tracking, and anomaly detection.
 
 ![Smart Expense API Swagger Documentation](swagger-api.png)
 
+## Author
 
-AUTHOR
+**Ashutosh Juyal**
 
-Ashutosh Juyal
-
-LinkedIn:
-https://www.linkedin.com/in/ashutosh-juyal-195620354/
-
-GitHub:
-https://github.com/juyalashutosh51-code
+- LinkedIn: [linkedin.com/in/ashutosh-juyal](https://www.linkedin.com/in/ashutosh-juyal)
+- GitHub: [github.com/juyalashutosh51-code](https://github.com/juyalashutosh51-code)
