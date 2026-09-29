@@ -1,16 +1,14 @@
-SMART EXPENSE API
+# Smart Expense API
 
 A RESTful expense management and analytics API built with Python, FastAPI, SQLAlchemy, and Microsoft SQL Server.
 
-
-OVERVIEW
+## Overview
 
 Smart Expense API is a backend application designed to manage financial transactions and provide useful spending insights through REST APIs.
 
 The project uses a modular structure with separate routers, models, schemas, and service layers.
 
-
-FEATURES
+## Features
 
 - Transaction management
 - Income and expense tracking
@@ -25,44 +23,46 @@ FEATURES
 - Transaction anomaly detection using Z-scores
 - REST API documentation with Swagger/OpenAPI
 
+## Tech Stack
 
-TECH STACK
+- **Language:** Python
+- **Framework:** FastAPI
+- **ORM:** SQLAlchemy
+- **Database:** Microsoft SQL Server
+- **Data Processing:** Pandas
+- **Validation:** Pydantic
+- **API Testing:** Postman
+- **Documentation:** Swagger/OpenAPI
+- **Version Control:** Git & GitHub
 
-- Language: Python
-- Framework: FastAPI
-- ORM: SQLAlchemy
-- Database: Microsoft SQL Server
-- Data Processing: Pandas
-- Validation: Pydantic
-- API Testing: Postman
-- Documentation: Swagger/OpenAPI
-- Version Control: Git & GitHub
+## Project Structure
 
-
-PROJECT STRUCTURE
-
+```text
 Smart-Expense-Api/
-|
+│
 ├── app/
 │   ├── models/
 │   │   ├── budget.py
 │   │   └── transaction.py
+│   │
 │   ├── routers/
 │   │   ├── analytics.py
 │   │   ├── budget.py
 │   │   └── transaction.py
+│   │
 │   ├── schemas/
 │   │   ├── budget.py
 │   │   └── transaction.py
+│   │
 │   ├── services/
 │   │   ├── anomaly_detector.py
 │   │   └── categorizer.py
+│   │
 │   ├── database.py
 │   └── main.py
-|
+│
 ├── .gitignore
 └── requirements.txt
-
 
 RUNNING THE PROJECT
 
