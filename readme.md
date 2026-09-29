@@ -114,6 +114,14 @@ After starting the application, the documentation can be accessed at:
 http://127.0.0.1:8000/docs
 
 
+```markdown
+## API Overview
+
+The API provides endpoints for transaction management, CSV import, financial analytics, budget tracking, and anomaly detection.
+
+![Smart Expense API Swagger Documentation](swagger-api.png)
+
+
 AUTHOR
 
 Ashutosh Juyal
